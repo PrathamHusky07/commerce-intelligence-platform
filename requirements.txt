@@ -1,0 +1,24 @@
+# E-Commerce Lakehouse MLOps - Python Dependencies
+
+# Data extraction
+google-cloud-bigquery>=3.25.0
+pyarrow>=17.0.0
+pandas>=2.2.0
+python-dotenv>=1.0.0
+
+# Feature Store
+feast>=0.40.0
+
+# ML
+lightgbm>=4.5.0
+xgboost>=2.1.0
+scikit-learn>=1.5.0
+
+# Experiment tracking
+mlflow>=2.16.0
+
+# Monitoring
+evidently>=0.4.0
+
+# Utilities
+numpy>=1.26.0
