@@ -1,0 +1,3 @@
+# Feast generated artifacts — recreated by `feast apply` and `feast materialize`
+registry.db
+online_store.db
