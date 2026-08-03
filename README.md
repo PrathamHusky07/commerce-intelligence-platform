@@ -56,7 +56,7 @@ The AI Business Analyst layer is what sets this apart. A LangGraph agent scans G
 ## Architecture
 
 <p align="center">
-  <img src="docs/architecture.svg" alt="Platform Architecture" width="100%"/>
+  <img src="docs/architecture.png" alt="Platform Architecture" width="100%"/>
 </p>
 
 The architecture has four tiers. The **Data Platform** runs the medallion lakehouse from ingestion through Gold export. The **ML Platform** handles point-in-time feature engineering, model training, and monitoring. The **AI Platform** computes signals deterministically and layers LLM reasoning on top. The **Presentation** tier delivers two Streamlit pages, one AI-driven and one pure analytics. Numbered annotations on the diagram link to specific architecture decision records in [`docs/engineering_decisions.md`](docs/engineering_decisions.md).
