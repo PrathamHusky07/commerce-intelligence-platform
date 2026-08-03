@@ -1,0 +1,15 @@
+{
+  "timestamp": "2026-07-27T17:02:20.281528+00:00",
+  "data_drift_detected": false,
+  "features_drifted": 0,
+  "features_tested": 21,
+  "prediction_drift_detected": true,
+  "prediction_drift_method": "Wasserstein distance (normed)",
+  "prediction_drift_score": 5.4203,
+  "prediction_drift_threshold": 0.1,
+  "model_degraded": false,
+  "auc_ref": 0.6673,
+  "auc_cur": 0.6661,
+  "auc_drop_pct": 0.18,
+  "recommendation": "INVESTIGATE"
+}
