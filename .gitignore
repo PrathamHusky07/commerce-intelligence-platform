@@ -43,3 +43,21 @@ mlflow.db
 
 # Databricks
 .databricks/
+
+
+# Raw and intermediate data (pipeline-only, not needed by the app)
+data/*.parquet
+
+# Runtime Gold tables + predictions (the app needs these to serve)
+!data/customer_360.parquet
+!data/product_performance.parquet
+!data/inventory_health.parquet
+!data/fulfillment_metrics.parquet
+!data/funnel_analytics.parquet
+!data/predictions.parquet
+
+# Feast local stores (reproducible via feast apply)
+feast/*.db
+
+# Streamlit
+.streamlit/
