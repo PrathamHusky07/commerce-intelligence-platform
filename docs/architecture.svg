@@ -1,0 +1,325 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1100" font-family="'Inter', 'Helvetica Neue', Arial, sans-serif">
+  <!--
+    E-Commerce Intelligence Platform · Architecture v3
+    Refinements over v2:
+      · Subtitle rewritten as a purpose sentence, not a technology list
+      · "Inference" renamed to "Batch Scoring" for clarity
+      · Presentation tier title focuses on architecture, not deployment target
+      · "Versioned Parquet snapshots" replaced with "Application snapshots"
+      · User actor renamed to "Business User" (single role, not slash list)
+      · LangGraph agent sublabel now describes actions: investigates, alerts, recommends
+      · Arrow color darkened for confident readability, stroke bumped to 1.8
+      · ADC block removed from Governance (four items, not five)
+      · Annotation numbers repositioned for consistency (top-left of each box)
+      · New annotation ④ on LangGraph Agent → ADR 7 (LLM never computes)
+  -->
+
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#1E293B"/>
+    </marker>
+    <marker id="arrow-light" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#94A3B8"/>
+    </marker>
+  </defs>
+
+  <!-- ===================== HEADER ===================== -->
+  <rect x="0" y="0" width="1600" height="70" fill="#0F172A"/>
+  <text x="40" y="42" font-size="22" font-weight="700" fill="#FFFFFF" letter-spacing="0.3">
+    E-Commerce Intelligence Platform
+  </text>
+  <text x="40" y="60" font-size="12" font-weight="400" fill="#94A3B8" letter-spacing="0.3">
+    End-to-end platform for analytics, machine learning, and AI-assisted decision support.
+  </text>
+
+  <!-- Legend, right side of header -->
+  <g font-size="10" font-weight="500" fill="#CBD5E1">
+    <rect x="1120" y="27" width="12" height="12" rx="2" fill="#3B82F6"/>
+    <text x="1138" y="37">Data Platform</text>
+    <rect x="1218" y="27" width="12" height="12" rx="2" fill="#10B981"/>
+    <text x="1236" y="37">ML Platform</text>
+    <rect x="1310" y="27" width="12" height="12" rx="2" fill="#8B5CF6"/>
+    <text x="1328" y="37">AI Platform</text>
+    <rect x="1400" y="27" width="12" height="12" rx="2" fill="#F97316"/>
+    <text x="1418" y="37">Presentation</text>
+    <rect x="1500" y="27" width="12" height="12" rx="2" fill="#64748B"/>
+    <text x="1518" y="37">Governance</text>
+  </g>
+
+  <!-- ===================== TIER 1: DATA PLATFORM ===================== -->
+  <rect x="30" y="90" width="1540" height="180" rx="10" fill="#EFF6FF" stroke="#BFDBFE" stroke-width="1"/>
+
+  <g font-size="10" font-weight="700" fill="#1D4ED8" letter-spacing="1.5">
+    <text x="55" y="180" transform="rotate(-90 55 180)" text-anchor="middle">DATA PLATFORM</text>
+  </g>
+
+  <text x="90" y="115" font-size="14" font-weight="700" fill="#1E3A8A">Medallion Lakehouse on Databricks</text>
+  <text x="90" y="132" font-size="11" font-weight="400" fill="#475569">Ingest, clean, and shape data into business-owned domain tables.</text>
+
+  <!-- 6 uniform boxes: 200x90 each -->
+  <g fill="#FFFFFF" stroke="#3B82F6" stroke-width="1.5">
+    <rect x="90"   y="155" width="200" height="90" rx="8"/>
+    <rect x="325"  y="155" width="200" height="90" rx="8"/>
+    <rect x="560"  y="155" width="200" height="90" rx="8"/>
+    <rect x="795"  y="155" width="200" height="90" rx="8"/>
+    <rect x="1030" y="155" width="200" height="90" rx="8"/>
+    <rect x="1265" y="155" width="200" height="90" rx="8"/>
+  </g>
+
+  <g text-anchor="middle" fill="#1E3A8A">
+    <text x="190"  y="190" font-size="14" font-weight="700">BigQuery</text>
+    <text x="190"  y="210" font-size="11" font-weight="400" fill="#475569">Source dataset</text>
+
+    <text x="425"  y="190" font-size="14" font-weight="700">Extraction</text>
+    <text x="425"  y="210" font-size="11" font-weight="400" fill="#475569">Python export to Parquet</text>
+
+    <text x="660"  y="190" font-size="14" font-weight="700">Bronze</text>
+    <text x="660"  y="210" font-size="11" font-weight="400" fill="#475569">Raw ingestion</text>
+
+    <text x="895"  y="190" font-size="14" font-weight="700">Silver</text>
+    <text x="895"  y="210" font-size="11" font-weight="400" fill="#475569">Clean, typed, validated</text>
+
+    <text x="1130" y="190" font-size="14" font-weight="700">Gold</text>
+    <text x="1130" y="210" font-size="11" font-weight="400" fill="#475569">Domain business tables</text>
+
+    <text x="1365" y="190" font-size="14" font-weight="700">Gold Export</text>
+    <text x="1365" y="210" font-size="11" font-weight="400" fill="#475569">Application snapshots</text>
+  </g>
+
+  <!-- Annotation ① on Silver (top-left, consistent position) -->
+  <circle cx="805" cy="165" r="10" fill="#F59E0B" stroke="#FFFFFF" stroke-width="2"/>
+  <text x="805" y="169" text-anchor="middle" font-size="11" font-weight="700" fill="#FFFFFF">1</text>
+
+  <!-- Annotation ② on Gold Export (top-left, consistent position) -->
+  <circle cx="1275" cy="165" r="10" fill="#F59E0B" stroke="#FFFFFF" stroke-width="2"/>
+  <text x="1275" y="169" text-anchor="middle" font-size="11" font-weight="700" fill="#FFFFFF">2</text>
+
+  <!-- Horizontal arrows within Data Platform -->
+  <g stroke="#1E293B" stroke-width="1.8" fill="none" marker-end="url(#arrow)">
+    <path d="M 290  200 L 323  200"/>
+    <path d="M 525  200 L 558  200"/>
+    <path d="M 760  200 L 793  200"/>
+    <path d="M 995  200 L 1028 200"/>
+    <path d="M 1230 200 L 1263 200"/>
+  </g>
+
+  <!-- ===================== INTER-TIER CHANNEL 1 → 2 ===================== -->
+  <!-- Silver → Feature Engineering (leakage-safe path) -->
+  <g stroke="#1E293B" stroke-width="1.8" fill="none" marker-end="url(#arrow)">
+    <path d="M 895 245 L 895 275 L 190 275 L 190 305"/>
+  </g>
+
+  <!-- Gold Export → DuckDB (analytics path) -->
+  <g stroke="#1E293B" stroke-width="1.8" fill="none" marker-end="url(#arrow)">
+    <path d="M 1365 245 L 1365 285 L 190 285 L 190 530 L 190 565"/>
+  </g>
+
+  <!-- ===================== TIER 2: ML PLATFORM ===================== -->
+  <rect x="30" y="305" width="1540" height="180" rx="10" fill="#F0FDF4" stroke="#BBF7D0" stroke-width="1"/>
+
+  <g font-size="10" font-weight="700" fill="#047857" letter-spacing="1.5">
+    <text x="55" y="395" transform="rotate(-90 55 395)" text-anchor="middle">ML PLATFORM</text>
+  </g>
+
+  <text x="90" y="330" font-size="14" font-weight="700" fill="#065F46">Feature Engineering, Training, and Monitoring</text>
+  <text x="90" y="347" font-size="11" font-weight="400" fill="#475569">Point-in-time features, tracked experiments, and drift signals.</text>
+
+  <g fill="#FFFFFF" stroke="#10B981" stroke-width="1.5">
+    <rect x="90"   y="370" width="200" height="90" rx="8"/>
+    <rect x="325"  y="370" width="200" height="90" rx="8"/>
+    <rect x="560"  y="370" width="200" height="90" rx="8"/>
+    <rect x="795"  y="370" width="200" height="90" rx="8"/>
+    <rect x="1030" y="370" width="200" height="90" rx="8"/>
+    <rect x="1265" y="370" width="200" height="90" rx="8"/>
+  </g>
+
+  <g text-anchor="middle" fill="#065F46">
+    <text x="190"  y="405" font-size="14" font-weight="700">Feature Engineering</text>
+    <text x="190"  y="425" font-size="11" font-weight="400" fill="#475569">Point-in-time features</text>
+
+    <text x="425"  y="405" font-size="14" font-weight="700">Feast</text>
+    <text x="425"  y="425" font-size="11" font-weight="400" fill="#475569">Offline and online serving</text>
+
+    <text x="660"  y="405" font-size="14" font-weight="700">MLflow Training</text>
+    <text x="660"  y="425" font-size="11" font-weight="400" fill="#475569">Experiments and registry</text>
+
+    <text x="895"  y="405" font-size="14" font-weight="700">Batch Scoring</text>
+    <text x="895"  y="425" font-size="11" font-weight="400" fill="#475569">Churn predictions</text>
+
+    <text x="1130" y="405" font-size="14" font-weight="700">Evidently</text>
+    <text x="1130" y="425" font-size="11" font-weight="400" fill="#475569">Drift and quality reports</text>
+
+    <text x="1365" y="405" font-size="14" font-weight="700">Monitoring Summary</text>
+    <text x="1365" y="425" font-size="11" font-weight="400" fill="#475569">Structured signals for agent</text>
+  </g>
+
+  <!-- Annotation ① on Feature Engineering (top-left, consistent position) -->
+  <circle cx="100" cy="380" r="10" fill="#F59E0B" stroke="#FFFFFF" stroke-width="2"/>
+  <text x="100" y="384" text-anchor="middle" font-size="11" font-weight="700" fill="#FFFFFF">1</text>
+
+  <!-- Horizontal arrows within ML Platform -->
+  <g stroke="#1E293B" stroke-width="1.8" fill="none" marker-end="url(#arrow)">
+    <path d="M 290  415 L 323  415"/>
+    <path d="M 525  415 L 558  415"/>
+    <path d="M 760  415 L 793  415"/>
+    <path d="M 995  415 L 1028 415"/>
+    <path d="M 1230 415 L 1263 415"/>
+  </g>
+
+  <!-- ===================== INTER-TIER CHANNEL 2 → 3 ===================== -->
+  <!-- Batch Scoring → Findings Engine -->
+  <g stroke="#1E293B" stroke-width="1.8" fill="none" marker-end="url(#arrow)">
+    <path d="M 895 460 L 895 495 L 660 495 L 660 565"/>
+  </g>
+  <rect x="705" y="502" width="150" height="18" rx="4" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1"/>
+  <text x="780" y="514" text-anchor="middle" font-size="9" font-weight="600" fill="#334155">predictions.parquet</text>
+
+  <!-- Monitoring Summary → Findings Engine -->
+  <g stroke="#1E293B" stroke-width="1.8" fill="none" marker-end="url(#arrow)">
+    <path d="M 1365 460 L 1365 500 L 660 500 L 660 565"/>
+  </g>
+  <rect x="1195" y="507" width="170" height="18" rx="4" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1"/>
+  <text x="1280" y="519" text-anchor="middle" font-size="9" font-weight="600" fill="#334155">monitoring_summary.json</text>
+
+  <!-- ===================== TIER 3: AI PLATFORM ===================== -->
+  <rect x="30" y="540" width="1540" height="180" rx="10" fill="#FAF5FF" stroke="#E9D5FF" stroke-width="1"/>
+
+  <g font-size="10" font-weight="700" fill="#6D28D9" letter-spacing="1.5">
+    <text x="55" y="630" transform="rotate(-90 55 630)" text-anchor="middle">AI PLATFORM</text>
+  </g>
+
+  <text x="90" y="565" font-size="14" font-weight="700" fill="#4C1D95">Deterministic Analytics with an LLM Reasoning Layer</text>
+  <text x="90" y="582" font-size="11" font-weight="400" fill="#475569">Metrics are computed in code. The model reasons over structured signals.</text>
+
+  <g fill="#FFFFFF" stroke="#8B5CF6" stroke-width="1.5">
+    <rect x="90"   y="605" width="200" height="90" rx="8"/>
+    <rect x="325"  y="605" width="200" height="90" rx="8"/>
+    <rect x="560"  y="605" width="200" height="90" rx="8"/>
+    <rect x="795"  y="605" width="200" height="90" rx="8"/>
+    <rect x="1030" y="605" width="200" height="90" rx="8"/>
+    <rect x="1265" y="605" width="200" height="90" rx="8"/>
+  </g>
+
+  <g text-anchor="middle" fill="#4C1D95">
+    <text x="190"  y="640" font-size="14" font-weight="700">DuckDB</text>
+    <text x="190"  y="660" font-size="11" font-weight="400" fill="#475569">Embedded SQL analytics</text>
+
+    <text x="425"  y="640" font-size="14" font-weight="700">Signal Generation</text>
+    <text x="425"  y="660" font-size="11" font-weight="400" fill="#475569">Metric anomaly detection</text>
+
+    <text x="660"  y="640" font-size="14" font-weight="700">Findings Engine</text>
+    <text x="660"  y="660" font-size="11" font-weight="400" fill="#475569">Prioritization and evidence</text>
+
+    <text x="895"  y="640" font-size="14" font-weight="700">LangGraph Agent</text>
+    <text x="895"  y="660" font-size="11" font-weight="400" fill="#475569">Investigates, alerts, recommends</text>
+
+    <text x="1130" y="640" font-size="14" font-weight="700">Gemini 2.5 Flash</text>
+    <text x="1130" y="660" font-size="11" font-weight="400" fill="#475569">Narrative synthesis</text>
+
+    <text x="1365" y="640" font-size="14" font-weight="700">Executive Brief</text>
+    <text x="1365" y="660" font-size="11" font-weight="400" fill="#475569">5-section decision memo</text>
+  </g>
+
+  <!-- Annotation ③ on LangGraph Agent (top-left, consistent) — LLM never computes -->
+  <circle cx="805" cy="615" r="10" fill="#F59E0B" stroke="#FFFFFF" stroke-width="2"/>
+  <text x="805" y="619" text-anchor="middle" font-size="11" font-weight="700" fill="#FFFFFF">3</text>
+
+  <!-- Horizontal arrows within AI Platform -->
+  <g stroke="#1E293B" stroke-width="1.8" fill="none" marker-end="url(#arrow)">
+    <path d="M 290  650 L 323  650"/>
+    <path d="M 525  650 L 558  650"/>
+    <path d="M 760  650 L 793  650"/>
+    <path d="M 995  650 L 1028 650"/>
+    <path d="M 1230 650 L 1263 650"/>
+  </g>
+
+  <!-- ===================== INTER-TIER CHANNEL 3 → 4 ===================== -->
+  <!-- DuckDB → Business Explorer (direct SQL, no LLM) -->
+  <g stroke="#1E293B" stroke-width="1.8" fill="none" marker-end="url(#arrow)">
+    <path d="M 190 695 L 190 735 L 895 735 L 895 775"/>
+  </g>
+  <rect x="225" y="742" width="150" height="18" rx="4" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1"/>
+  <text x="300" y="754" text-anchor="middle" font-size="9" font-weight="600" fill="#334155">Direct SQL, no LLM</text>
+
+  <!-- Executive Brief → Executive Intelligence page -->
+  <g stroke="#1E293B" stroke-width="1.8" fill="none" marker-end="url(#arrow)">
+    <path d="M 1365 695 L 1365 740 L 425 740 L 425 775"/>
+  </g>
+  <rect x="1195" y="747" width="170" height="18" rx="4" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1"/>
+  <text x="1280" y="759" text-anchor="middle" font-size="9" font-weight="600" fill="#334155">briefing, findings, charts</text>
+
+  <!-- ===================== TIER 4: PRESENTATION ===================== -->
+  <rect x="30" y="775" width="1540" height="180" rx="10" fill="#FFF7ED" stroke="#FED7AA" stroke-width="1"/>
+
+  <g font-size="10" font-weight="700" fill="#C2410C" letter-spacing="1.5">
+    <text x="55" y="865" transform="rotate(-90 55 865)" text-anchor="middle">PRESENTATION</text>
+  </g>
+
+  <text x="90" y="800" font-size="14" font-weight="700" fill="#7C2D12">Streamlit Application</text>
+  <text x="90" y="817" font-size="11" font-weight="400" fill="#475569">Two-page executive experience: AI briefing and deterministic drill-down.</text>
+
+  <g fill="#FFFFFF" stroke="#F97316" stroke-width="1.5">
+    <rect x="200" y="840" width="450" height="90" rx="8"/>
+    <rect x="700" y="840" width="450" height="90" rx="8"/>
+  </g>
+  <!-- User actor with dashed outline (external role convention) -->
+  <rect x="1200" y="840" width="270" height="90" rx="8" fill="#FFF7ED" stroke="#F97316" stroke-width="1.5" stroke-dasharray="5 3"/>
+
+  <g text-anchor="middle" fill="#7C2D12">
+    <text x="425"  y="875" font-size="14" font-weight="700">Page 1 · Executive Intelligence</text>
+    <text x="425"  y="895" font-size="11" font-weight="400" fill="#475569">KPIs, prioritized findings, AI briefing</text>
+    <text x="425"  y="911" font-size="11" font-weight="400" fill="#475569">Suggested questions and follow-up chat</text>
+
+    <text x="925"  y="875" font-size="14" font-weight="700">Page 2 · Business Explorer</text>
+    <text x="925"  y="895" font-size="11" font-weight="400" fill="#475569">Revenue, customers, products, ops, inventory</text>
+    <text x="925"  y="911" font-size="11" font-weight="400" fill="#475569">Data-driven recommendations per section</text>
+
+    <text x="1335" y="880" font-size="14" font-weight="700">Business User</text>
+    <text x="1335" y="900" font-size="11" font-weight="400" fill="#475569">Reads briefing, asks follow-ups</text>
+  </g>
+
+  <!-- Dashed arrow from Page 2 to User -->
+  <g stroke="#94A3B8" stroke-width="1.4" fill="none" marker-end="url(#arrow-light)" stroke-dasharray="4 3">
+    <path d="M 1150 885 L 1198 885"/>
+  </g>
+
+  <!-- ===================== TIER 5: GOVERNANCE (four items, ADC removed) ===================== -->
+  <rect x="30" y="975" width="1540" height="100" rx="10" fill="#F1F5F9" stroke="#CBD5E1" stroke-width="1"/>
+
+  <g font-size="10" font-weight="700" fill="#334155" letter-spacing="1.5">
+    <text x="55" y="1025" transform="rotate(-90 55 1025)" text-anchor="middle">GOVERNANCE</text>
+  </g>
+
+  <text x="90" y="1000" font-size="14" font-weight="700" fill="#0F172A">Cross-Cutting Concerns</text>
+
+  <!-- 4 uniform governance chips, wider spacing -->
+  <g fill="#FFFFFF" stroke="#64748B" stroke-width="1">
+    <rect x="90"   y="1020" width="340" height="40" rx="6"/>
+    <rect x="450"  y="1020" width="340" height="40" rx="6"/>
+    <rect x="810"  y="1020" width="340" height="40" rx="6"/>
+    <rect x="1170" y="1020" width="340" height="40" rx="6"/>
+  </g>
+  <g text-anchor="middle" font-size="11" font-weight="600" fill="#334155">
+    <text x="260"  y="1045">Unity Catalog · Data governance</text>
+    <text x="620"  y="1045">Feast Registry · Feature lineage</text>
+    <text x="980"  y="1045">MLflow Registry · Model versioning</text>
+    <text x="1340" y="1045">Git · Repository and deployment</text>
+  </g>
+
+  <!-- ===================== FOOTER: ANNOTATION LEGEND ===================== -->
+  <g font-size="10" fill="#475569">
+    <circle cx="100" cy="1090" r="7" fill="#F59E0B" stroke="#FFFFFF" stroke-width="1.5"/>
+    <text x="100" y="1093" text-anchor="middle" font-size="9" font-weight="700" fill="#FFFFFF">1</text>
+    <text x="115" y="1094" font-weight="500">Features engineered from Silver, not Gold — see engineering_decisions.md · ADR 3</text>
+
+    <circle cx="720" cy="1090" r="7" fill="#F59E0B" stroke="#FFFFFF" stroke-width="1.5"/>
+    <text x="720" y="1093" text-anchor="middle" font-size="9" font-weight="700" fill="#FFFFFF">2</text>
+    <text x="735" y="1094" font-weight="500">Application consumes versioned artifacts, decoupled from pipeline — ADR 11</text>
+
+    <circle cx="1200" cy="1090" r="7" fill="#F59E0B" stroke="#FFFFFF" stroke-width="1.5"/>
+    <text x="1200" y="1093" text-anchor="middle" font-size="9" font-weight="700" fill="#FFFFFF">3</text>
+    <text x="1215" y="1094" font-weight="500">LLM reasons over structured signals, never computes — ADR 7</text>
+  </g>
+
+</svg>
