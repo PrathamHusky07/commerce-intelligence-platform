@@ -1,8 +1,13 @@
 """
 Page 1 — Executive Intelligence
 
+v6 — Final Polish:
+  #1  KPI cards: Dead Stock / Churn use identical DOM structure to the other 7
+      via an invisible delta placeholder. Prior line shows business-appropriate
+      context ("Current snapshot" / "Current inference batch") instead of
+      forcing a meaningless month-over-month comparison.
+
 v5 — Production Readiness Sprint:
-  #1  Fix Dead Stock / Churn KPI card <span class="prior"> (was <div>)
   #3  Key Findings hierarchy in briefing — bold title as heading,
       sub-points (Hypothesis, Confidence, Evidence) indented beneath
   #4  Supporting Data renders as HTML table (not raw text dump)
@@ -188,21 +193,24 @@ def _render_kpi_cards():
             prior_str = f"Previous: {s.prior_value:.1f}d"
         elif s.metric.startswith("Churn"):
             val_str = f"{int(s.current_value)} / {int(s.prior_value)}"
-            # #2 — Plain text, no HTML that could break
-            prior_str = "high-risk / total scored"
+            # #1 — Snapshot metric, not MoM. Business-appropriate context text.
+            prior_str = "Current Inference Batch"
         elif s.metric == "Dead Stock Rate":
             val_str = f"{s.current_value:.1%}"
-            # #2 — Plain text, no HTML that could break
-            prior_str = "current snapshot"
+            # #1 — Snapshot metric, not MoM. Business-appropriate context text.
+            prior_str = "Current Rate"
         else:
             val_str = f"{s.current_value:,.0f}"
             prior_str = f"Previous: {s.prior_value:,.0f}"
 
         # Delta calculation
         if s.metric in ("Dead Stock Rate", "Churn Risk (Inference Batch)"):
-            # #2 — These have no delta, just show value
-            delta_str = ""
-            delta_class = ""
+            # #1 — Snapshot metrics have no MoM delta. Use an invisible placeholder
+            # so the DOM structure is identical to the other 7 cards. This works around
+            # a Streamlit quirk where nested <div> containing only inline content
+            # gets partially stripped, producing raw </div> in the rendered output.
+            delta_str = "·"
+            delta_class = "delta-hidden"
         elif s.delta_pct == 0:
             delta_class = "delta-flat"
             delta_str = "—"
@@ -223,8 +231,8 @@ def _render_kpi_cards():
                 delta_class = "delta-flat"
 
         label = s.metric.replace("(Inference Batch)", "").strip()
-        delta_html = f'<span class="delta {delta_class}">{delta_str}</span>' if delta_str else ""
-        # #1 — <span> renders reliably in nested contexts; CSS makes it display:block
+        # #1 — Every card renders delta_html unconditionally. Identical DOM shape.
+        delta_html = f'<span class="delta {delta_class}">{delta_str}</span>'
         prior_html = f'<span class="prior">{prior_str}</span>'
 
         cards.append((label, val_str, delta_html, prior_html))

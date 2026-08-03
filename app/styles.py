@@ -1,8 +1,12 @@
 """
 Shared CSS for the E-Commerce Intelligence Platform.
 
-v5 — Production Readiness Sprint (12 fixes):
-  #1  Fix Dead Stock / Churn <span class="prior"> rendering (was <div>)
+v6 — Final Polish:
+  #1  .delta-hidden class: invisible placeholder that preserves DOM structure
+      across all 9 KPI cards, so snapshot metrics (Dead Stock, Churn) render
+      through the same path as the other 7 without visible content.
+
+v5 — Production Readiness Sprint:
   #3  Key Findings hierarchy: bold title heading, indented sub-points
   #4  Supporting data as HTML table (not raw text)
   #5  Explorer section headings (Business Summary / Evidence / Recommended Action)
@@ -140,6 +144,13 @@ def inject_css():
     .delta-down-good { background: #ECFDF5; color: #059669; }
     .delta-down-bad  { background: #FEF2F2; color: #DC2626; }
     .delta-flat { background: #F1F5F9; color: #64748B; }
+    /* Invisible placeholder — keeps DOM structure identical across all KPI cards
+       while showing nothing where the delta would be. Used for snapshot metrics
+       (Dead Stock, Churn Risk) that have no month-over-month delta. */
+    .delta-hidden {
+        visibility: hidden;
+        background: transparent;
+    }
 
     /* ── Snapshot items ── */
     .snapshot-item {

@@ -1,12 +1,21 @@
 """
 Page 2 — Business Explorer
 
+v6 — Final Polish:
+  #2  SLA annotation moved to top-right (was top-left, colliding with bars)
+  #3a Return Rate chart: interpretation caption under title explains what
+      the chart shows and notes the tight spread
+  #3b Return Rate legend: explicit "Higher/Lower return rate than portfolio
+      average" wording (was ambiguous "Above/Below")
+  #3c Products recommendation: names the specific top-return categories and
+      quantifies deviation from portfolio average (closes chart→recommendation loop)
+
 v5 — Production Readiness Sprint:
   #5  cliponaxis=False globally to fix all label clipping systemically
   #6  Plotly toolbar: hover-to-show (Plotly default), not always-off
   #7  Shared global CHART_LAYOUT (r=90, t=55) — every chart inherits
   #8  Lollipop rename x-axis, label reference line, fix text positioning
-  #9  SLA annotation split into two lines, positioned inside chart area
+  #9  SLA annotation split into two lines
   #10 Explorer section headings (Business Summary / Evidence / Recommended Action)
   #11 Recommendation card with action-level indicator (severity-driven)
   #12 Editorial consistency across all recommendations (shared component)
@@ -244,7 +253,7 @@ def _render_revenue_section(con):
         st.plotly_chart(fig, use_container_width=True)  # #6 — default toolbar
 
     with col2:
-        st.markdown("**Revenue by Distribution Center** (current period)")
+        st.markdown("**Revenue by Distribution Center** (Current period)")
         df = con.execute("""
             SELECT distribution_center_name, SUM(total_revenue) AS revenue
             FROM fulfillment_metrics
@@ -315,7 +324,7 @@ def _render_customers_section(con):
     # Churn definition explainer (glossary-style, separate from summary)
     st.markdown("""
     <div class="definition-note">
-        <strong>Churn</strong> = customers predicted to make no purchase within the next 90 days.
+        <strong>Churn</strong> refers to customers predicted to make no purchase within the next 90 days.
         The model considers signals like days since last purchase, order frequency, and
         average order value to estimate risk. A probability above 0.7 is classified as high-risk.
     </div>
@@ -436,7 +445,7 @@ def _render_products_section(con):
     with col2:
         # #9 — Lollipop: rename x-axis, label reference line explicitly,
         # position labels dynamically (above dots above mean, below dots below mean)
-        st.markdown("**Return Rate by Category** (top 10 by volume)")
+        st.markdown("**Return Rate by Category**")
         df = con.execute("""
             SELECT category, SUM(units_sold) AS units,
                    ROUND(AVG(return_rate) * 100, 2) AS avg_return_rate_pct
@@ -447,6 +456,22 @@ def _render_products_section(con):
         df = df.sort_values("avg_return_rate_pct", ascending=True)
 
         overall_avg = df["avg_return_rate_pct"].mean()
+        # Compute spread for the interpretation caption (Item 3a)
+        spread_pp = float(df["avg_return_rate_pct"].max() - df["avg_return_rate_pct"].min())
+
+        # Item 3a — Interpretation caption directly under the chart title.
+        # This is a benchmark-deviation chart, not a magnitude chart. The compressed
+        # x-axis is intentional (it shows relative differences around the portfolio
+        # average), but the reader needs to know the absolute spread is small.
+        st.markdown(
+            f"<div style='font-size:0.8rem; color:#64748B; margin-top:-0.35rem; "
+            f"margin-bottom:0.5rem;'>"
+            f"Categories to the right of the dashed line have higher-than-average "
+            f"return rates and may warrant investigation. All categories fall within "
+            f"a narrow <strong>{spread_pp:.1f} percentage point</strong> range."
+            f"</div>",
+            unsafe_allow_html=True,
+        )
 
         # Build lollipop chart
         fig = go.Figure()
@@ -499,11 +524,12 @@ def _render_products_section(con):
         )
         st.plotly_chart(fig, use_container_width=True)  # #6
 
-        # #9 — One-line reading key so the color coding is instantly clear
+        # Item 3b — Explicit legend wording. "Higher/Lower return rate than
+        # portfolio average" is clearer than "above/below" for a first-time reader.
         st.markdown(
             "<div style='font-size:0.78rem; color:#64748B; margin-top:-0.5rem;'>"
-            "🔴 Above portfolio average (investigate) &nbsp;&nbsp; "
-            "🟢 Below portfolio average (healthy)"
+            "🔴 Higher return rate than portfolio average (investigate) &nbsp;&nbsp; "
+            "🟢 Lower return rate than portfolio average (healthy)"
             "</div>",
             unsafe_allow_html=True,
         )
@@ -527,23 +553,41 @@ def _render_products_section(con):
 
     # ── Recommended Action ──
     _section_label("Recommended Action")
-    # #11 — Check whether any category is significantly above portfolio average
-    above_avg_rows = con.execute("""
-        SELECT category, ROUND(AVG(return_rate) * 100, 2) AS avg_rate
+    # Item 3c — Reference chart data explicitly: name the top-return categories
+    # (matching the RIGHT side of the lollipop chart above) and quantify how far
+    # they exceed the portfolio average. Every recommendation should ground
+    # itself in the evidence directly above it.
+    #
+    # This query matches what the lollipop chart plots: top 10 categories by
+    # sales volume, with average return rate per category.
+    top_return = con.execute("""
+        SELECT category,
+               ROUND(AVG(return_rate) * 100, 2) AS avg_rate,
+               SUM(units_sold) AS units
         FROM product_performance WHERE units_sold > 0
-        GROUP BY category
+        GROUP BY category ORDER BY units DESC LIMIT 10
     """).fetchdf()
-    overall_avg_rate = above_avg_rows["avg_rate"].mean() if not above_avg_rows.empty else 0
-    outliers = above_avg_rows[above_avg_rows["avg_rate"] > overall_avg_rate + 2.0]
-    level = "yellow" if len(outliers) > 0 else "green"
+
+    portfolio_avg = float(top_return["avg_rate"].mean()) if not top_return.empty else 0.0
+    # The three categories with the highest return rates on the chart
+    outliers_df = top_return.sort_values("avg_rate", ascending=False).head(3)
+    outlier_names = ", ".join(outliers_df["category"].tolist())
+    max_deviation_pp = (
+        float(outliers_df["avg_rate"].max()) - portfolio_avg
+        if not outliers_df.empty else 0.0
+    )
+
+    # #11 — Action level: green if outlier deviation is small, yellow if meaningful
+    level = "yellow" if max_deviation_pp >= 0.2 else "green"
 
     top_name = top_cat[0] if top_cat else "the top category"
     _render_recommendation(
         level=level,
         recommendation=(
             f"Sustain the merchandising strategy that positioned {top_name} as the revenue leader. "
-            f"Investigate categories with return rates significantly above the portfolio average "
-            f"({overall_avg_rate:.1f}%) before adjusting inventory allocation for the next cycle."
+            f"Investigate the {outlier_names} categories, which exceed the "
+            f"{portfolio_avg:.1f}% portfolio average by up to {max_deviation_pp:.1f} percentage points, "
+            f"before adjusting inventory allocation for the next cycle."
         ),
         business_impact=(
             "Return-rate outliers indicate either quality issues or a category-fit mismatch. "
@@ -553,7 +597,6 @@ def _render_products_section(con):
 
 
 def _render_fulfillment_section(con):
-    """Operations & SLA. #12 — remove Delivery Days Trend."""
     """Operations & SLA. Narrative flow: Business Summary → Evidence → Recommended Action."""
     signals = st.session_state.signals
     del_sig = next((s for s in signals if s.metric == "Avg Delivery Days"), None)
@@ -575,7 +618,7 @@ def _render_fulfillment_section(con):
     col1, col2 = st.columns(2)
 
     with col1:
-        st.markdown("**Avg Delivery Days by Fulfillment Center** (current period)")
+        st.markdown("**Avg Delivery Days by Fulfillment Center** (Current period)")
         df = con.execute("""
             SELECT distribution_center_name, avg_delivery_days
             FROM fulfillment_metrics
@@ -589,15 +632,18 @@ def _render_fulfillment_section(con):
         fig.update_traces(marker_color="#2563EB", texttemplate="%{x:.1f}d", textposition="outside",
                           textfont_size=9, cliponaxis=False)  # #5
 
-        # #10 — SLA annotation: two-line label, positioned inside chart area
+        # #10 — SLA annotation: two-line label, positioned to the RIGHT of the
+        # threshold line (empty space beyond the widest bar). "top right" places
+        # it above and to the right of the vertical line so it doesn't collide
+        # with the bars on the left.
         fig.add_vline(
             x=5.0,
             line_dash="dash",
             line_color="#DC2626",
             annotation_text="SLA Target<br>(5 days)",
             annotation_font_color="#DC2626",
-            annotation_font_size=10,
-            annotation_position="top left",
+            annotation_font_size=9,
+            annotation_position="top right",
         )
         fig.update_layout(
             height=400,
@@ -609,7 +655,7 @@ def _render_fulfillment_section(con):
         st.plotly_chart(fig, use_container_width=True)  # #6
 
     with col2:
-        st.markdown("**On-Time Rate by Fulfillment Center** (current period)")
+        st.markdown("**On-Time Rate by Fulfillment Center** (Current period)")
         df = con.execute("""
             SELECT distribution_center_name AS "Fulfillment Center",
                    ROUND(on_time_rate * 100, 1) AS "On-Time Rate (%)",
