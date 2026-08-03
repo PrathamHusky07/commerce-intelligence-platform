@@ -15,9 +15,12 @@
       · New annotation ④ on LangGraph Agent → ADR 7 (LLM never computes)
   -->
 
+  <!-- Full-canvas white background for reliable rendering on any theme -->
+  <rect x="0" y="0" width="1600" height="1100" fill="#FFFFFF"/>
+
   <defs>
     <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-      <path d="M 0 0 L 10 5 L 0 10 z" fill="#1E293B"/>
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#475569"/>
     </marker>
     <marker id="arrow-light" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
       <path d="M 0 0 L 10 5 L 0 10 z" fill="#94A3B8"/>
@@ -96,7 +99,7 @@
   <text x="1275" y="169" text-anchor="middle" font-size="11" font-weight="700" fill="#FFFFFF">2</text>
 
   <!-- Horizontal arrows within Data Platform -->
-  <g stroke="#1E293B" stroke-width="1.8" fill="none" marker-end="url(#arrow)">
+  <g stroke="#475569" stroke-width="1.8" fill="none" marker-end="url(#arrow)">
     <path d="M 290  200 L 323  200"/>
     <path d="M 525  200 L 558  200"/>
     <path d="M 760  200 L 793  200"/>
@@ -106,12 +109,12 @@
 
   <!-- ===================== INTER-TIER CHANNEL 1 → 2 ===================== -->
   <!-- Silver → Feature Engineering (leakage-safe path) -->
-  <g stroke="#1E293B" stroke-width="1.8" fill="none" marker-end="url(#arrow)">
+  <g stroke="#475569" stroke-width="1.8" fill="none" marker-end="url(#arrow)">
     <path d="M 895 245 L 895 275 L 190 275 L 190 305"/>
   </g>
 
   <!-- Gold Export → DuckDB (analytics path) -->
-  <g stroke="#1E293B" stroke-width="1.8" fill="none" marker-end="url(#arrow)">
+  <g stroke="#475569" stroke-width="1.8" fill="none" marker-end="url(#arrow)">
     <path d="M 1365 245 L 1365 285 L 190 285 L 190 530 L 190 565"/>
   </g>
 
@@ -159,7 +162,7 @@
   <text x="100" y="384" text-anchor="middle" font-size="11" font-weight="700" fill="#FFFFFF">1</text>
 
   <!-- Horizontal arrows within ML Platform -->
-  <g stroke="#1E293B" stroke-width="1.8" fill="none" marker-end="url(#arrow)">
+  <g stroke="#475569" stroke-width="1.8" fill="none" marker-end="url(#arrow)">
     <path d="M 290  415 L 323  415"/>
     <path d="M 525  415 L 558  415"/>
     <path d="M 760  415 L 793  415"/>
@@ -169,14 +172,14 @@
 
   <!-- ===================== INTER-TIER CHANNEL 2 → 3 ===================== -->
   <!-- Batch Scoring → Findings Engine -->
-  <g stroke="#1E293B" stroke-width="1.8" fill="none" marker-end="url(#arrow)">
+  <g stroke="#475569" stroke-width="1.8" fill="none" marker-end="url(#arrow)">
     <path d="M 895 460 L 895 495 L 660 495 L 660 565"/>
   </g>
   <rect x="705" y="502" width="150" height="18" rx="4" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1"/>
   <text x="780" y="514" text-anchor="middle" font-size="9" font-weight="600" fill="#334155">predictions.parquet</text>
 
   <!-- Monitoring Summary → Findings Engine -->
-  <g stroke="#1E293B" stroke-width="1.8" fill="none" marker-end="url(#arrow)">
+  <g stroke="#475569" stroke-width="1.8" fill="none" marker-end="url(#arrow)">
     <path d="M 1365 460 L 1365 500 L 660 500 L 660 565"/>
   </g>
   <rect x="1195" y="507" width="170" height="18" rx="4" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1"/>
@@ -226,7 +229,7 @@
   <text x="805" y="619" text-anchor="middle" font-size="11" font-weight="700" fill="#FFFFFF">3</text>
 
   <!-- Horizontal arrows within AI Platform -->
-  <g stroke="#1E293B" stroke-width="1.8" fill="none" marker-end="url(#arrow)">
+  <g stroke="#475569" stroke-width="1.8" fill="none" marker-end="url(#arrow)">
     <path d="M 290  650 L 323  650"/>
     <path d="M 525  650 L 558  650"/>
     <path d="M 760  650 L 793  650"/>
@@ -236,14 +239,14 @@
 
   <!-- ===================== INTER-TIER CHANNEL 3 → 4 ===================== -->
   <!-- DuckDB → Business Explorer (direct SQL, no LLM) -->
-  <g stroke="#1E293B" stroke-width="1.8" fill="none" marker-end="url(#arrow)">
+  <g stroke="#475569" stroke-width="1.8" fill="none" marker-end="url(#arrow)">
     <path d="M 190 695 L 190 735 L 895 735 L 895 775"/>
   </g>
   <rect x="225" y="742" width="150" height="18" rx="4" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1"/>
   <text x="300" y="754" text-anchor="middle" font-size="9" font-weight="600" fill="#334155">Direct SQL, no LLM</text>
 
   <!-- Executive Brief → Executive Intelligence page -->
-  <g stroke="#1E293B" stroke-width="1.8" fill="none" marker-end="url(#arrow)">
+  <g stroke="#475569" stroke-width="1.8" fill="none" marker-end="url(#arrow)">
     <path d="M 1365 695 L 1365 740 L 425 740 L 425 775"/>
   </g>
   <rect x="1195" y="747" width="170" height="18" rx="4" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1"/>
@@ -309,15 +312,15 @@
 
   <!-- ===================== FOOTER: ANNOTATION LEGEND ===================== -->
   <g font-size="10" fill="#475569">
-    <circle cx="100" cy="1090" r="7" fill="#F59E0B" stroke="#FFFFFF" stroke-width="1.5"/>
+    <circle cx="100" cy="1090" r="7" fill="#F59E0B" stroke="#E5E7EB" stroke-width="1.5"/>
     <text x="100" y="1093" text-anchor="middle" font-size="9" font-weight="700" fill="#FFFFFF">1</text>
     <text x="115" y="1094" font-weight="500">Features engineered from Silver, not Gold — see engineering_decisions.md · ADR 3</text>
 
-    <circle cx="720" cy="1090" r="7" fill="#F59E0B" stroke="#FFFFFF" stroke-width="1.5"/>
+    <circle cx="720" cy="1090" r="7" fill="#F59E0B" stroke="#E5E7EB" stroke-width="1.5"/>
     <text x="720" y="1093" text-anchor="middle" font-size="9" font-weight="700" fill="#FFFFFF">2</text>
     <text x="735" y="1094" font-weight="500">Application consumes versioned artifacts, decoupled from pipeline — ADR 11</text>
 
-    <circle cx="1200" cy="1090" r="7" fill="#F59E0B" stroke="#FFFFFF" stroke-width="1.5"/>
+    <circle cx="1200" cy="1090" r="7" fill="#F59E0B" stroke="#E5E7EB" stroke-width="1.5"/>
     <text x="1200" y="1093" text-anchor="middle" font-size="9" font-weight="700" fill="#FFFFFF">3</text>
     <text x="1215" y="1094" font-weight="500">LLM reasons over structured signals, never computes — ADR 7</text>
   </g>
