@@ -833,37 +833,50 @@ def _render_followup():
     if question_to_process:
         st.session_state.chat_history.append({"role": "user", "content": question_to_process})
 
-        with st.spinner("Investigating..."):
-            from src.agent import create_tools, build_agent, ask_followup
+        try:
+            with st.spinner("Investigating..."):
+                from src.agent import create_tools, build_agent, ask_followup
 
-            if "agent_tools" not in st.session_state:
-                project_root = st.session_state.get("project_root", Path(__file__).resolve().parent.parent)
-                tools = create_tools(
-                    st.session_state.signals,
-                    st.session_state.findings,
+                if "agent_tools" not in st.session_state:
+                    project_root = st.session_state.get("project_root", Path(__file__).resolve().parent.parent)
+                    tools = create_tools(
+                        st.session_state.signals,
+                        st.session_state.findings,
+                        st.session_state.con,
+                        st.session_state.monitoring_summary,
+                        charts_dir=project_root / "reports" / "charts",
+                    )
+                    _, llm, llm_with_tools = build_agent(
+                        st.session_state.signals,
+                        st.session_state.findings,
+                        tools,
+                    )
+                    st.session_state.agent_tools = tools
+                    st.session_state.llm = llm
+                    st.session_state.llm_with_tools = llm_with_tools
+
+                answer = ask_followup(
+                    question_to_process,
+                    st.session_state.llm,
+                    st.session_state.llm_with_tools,
+                    st.session_state.agent_tools,
                     st.session_state.con,
-                    st.session_state.monitoring_summary,
-                    charts_dir=project_root / "reports" / "charts",
-                )
-                _, llm, llm_with_tools = build_agent(
-                    st.session_state.signals,
                     st.session_state.findings,
-                    tools,
                 )
-                st.session_state.agent_tools = tools
-                st.session_state.llm = llm
-                st.session_state.llm_with_tools = llm_with_tools
 
-            answer = ask_followup(
-                question_to_process,
-                st.session_state.llm,
-                st.session_state.llm_with_tools,
-                st.session_state.agent_tools,
-                st.session_state.con,
-                st.session_state.findings,
-            )
-
-        st.session_state.chat_history.append({"role": "assistant", "content": answer})
+            st.session_state.chat_history.append({"role": "assistant", "content": answer})
+        except Exception:
+            st.session_state.chat_history.append({
+                "role": "assistant",
+                "content": (
+                    "**Interactive AI Unavailable**\n\n"
+                    "Interactive AI follow-up is unavailable in this hosted deployment. "
+                    "The analytics dashboard and executive briefing above remain fully functional.\n\n"
+                    "To experience the interactive AI Business Analyst, "
+                    "run the application locally with Google Cloud Application Default Credentials. "
+                    "See the README for local setup instructions."
+                ),
+            })
 
     # #5 — Render chat with styled HTML
     if st.session_state.chat_history:

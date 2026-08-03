@@ -40,6 +40,7 @@ mlflow.db
 *.json
 !feast/*.json
 !docs/*.json
+!evidently/monitoring_summary.json
 
 # Databricks
 .databricks/
